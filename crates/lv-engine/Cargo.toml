@@ -1,0 +1,19 @@
+[package]
+name = "lv-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lv-core = { path = "../lv-core" }
+
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true }
+duckdb = { workspace = true }
+fastembed = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }

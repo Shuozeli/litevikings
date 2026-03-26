@@ -1,0 +1,77 @@
+syntax = "proto3";
+package litevikings.v1;
+
+service SearchService {
+  rpc Find (FindRequest) returns (FindResponse);
+  rpc Search (SearchWithSessionRequest) returns (FindResponse);
+  rpc Grep (GrepRequest) returns (GrepResponse);
+  rpc Glob (GlobRequest) returns (GlobResponse);
+}
+
+message MatchedContext {
+  string uri = 1;
+  string context_type = 2;
+  int32 level = 3;
+  string abstract_text = 4;
+  float score = 5;
+  repeated RelatedContext related = 6;
+}
+
+message RelatedContext {
+  string uri = 1;
+  string reason = 2;
+  string abstract_text = 3;
+}
+
+message FindRequest {
+  string query = 1;
+  optional string target_uri = 2;
+  int32 limit = 3;
+  optional int32 node_limit = 4;
+  optional float score_threshold = 5;
+  optional string filter = 6;
+}
+
+message SearchWithSessionRequest {
+  string query = 1;
+  optional string target_uri = 2;
+  optional string session_id = 3;
+  int32 limit = 4;
+  optional int32 node_limit = 5;
+  optional float score_threshold = 6;
+  optional string filter = 7;
+}
+
+message FindResponse {
+  string query = 1;
+  repeated MatchedContext resources = 2;
+  int64 total_searched = 3;
+  int32 rounds = 4;
+}
+
+message GrepRequest {
+  string uri = 1;
+  string pattern = 2;
+  bool case_insensitive = 3;
+  optional int32 node_limit = 4;
+}
+
+message GrepMatch {
+  string uri = 1;
+  string line = 2;
+  int32 line_number = 3;
+}
+
+message GrepResponse {
+  repeated GrepMatch matches = 1;
+}
+
+message GlobRequest {
+  string pattern = 1;
+  string uri = 2;
+  optional int32 node_limit = 3;
+}
+
+message GlobResponse {
+  repeated string uris = 1;
+}

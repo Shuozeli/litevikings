@@ -1,0 +1,114 @@
+syntax = "proto3";
+package litevikings.v1;
+
+import "litevikings/v1/common.proto";
+
+service SessionsService {
+  rpc Create (CreateSessionRequest) returns (CreateSessionResponse);
+  rpc Get (GetSessionRequest) returns (GetSessionResponse);
+  rpc Delete (DeleteSessionRequest) returns (StatusResponse);
+  rpc List (ListSessionsRequest) returns (ListSessionsResponse);
+  rpc AddMessage (AddMessageRequest) returns (StatusResponse);
+  rpc GetMessages (GetMessagesRequest) returns (GetMessagesResponse);
+  rpc Commit (CommitRequest) returns (CommitResponse);
+  rpc RecordUsage (RecordUsageRequest) returns (StatusResponse);
+}
+
+message TextPart {
+  string text = 1;
+}
+
+message ContextPart {
+  string uri = 1;
+  string context_type = 2;
+  string abstract_text = 3;
+}
+
+message ToolPart {
+  string tool_id = 1;
+  string tool_name = 2;
+  string tool_uri = 3;
+  string skill_uri = 4;
+  optional string tool_input = 5;
+  string tool_output = 6;
+  string tool_status = 7;
+}
+
+message MessagePart {
+  oneof part {
+    TextPart text = 1;
+    ContextPart context = 2;
+    ToolPart tool = 3;
+  }
+}
+
+message Message {
+  string role = 1;
+  repeated MessagePart parts = 2;
+  string timestamp = 3;
+}
+
+message CreateSessionRequest {
+  optional string session_id = 1;
+}
+
+message CreateSessionResponse {
+  string session_id = 1;
+  string session_uri = 2;
+}
+
+message GetSessionRequest {
+  string session_id = 1;
+}
+
+message GetSessionResponse {
+  string session_id = 1;
+  string session_uri = 2;
+  string owner_user = 3;
+  string compression = 4;
+  string stats = 5;
+  string created_at = 6;
+}
+
+message DeleteSessionRequest {
+  string session_id = 1;
+}
+
+message ListSessionsRequest {}
+
+message ListSessionsResponse {
+  repeated GetSessionResponse sessions = 1;
+}
+
+message AddMessageRequest {
+  string session_id = 1;
+  string role = 2;
+  optional string content = 3;
+  repeated MessagePart parts = 4;
+}
+
+message GetMessagesRequest {
+  string session_id = 1;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+}
+
+message CommitRequest {
+  string session_id = 1;
+}
+
+message CommitResponse {
+  int64 memories_extracted = 1;
+}
+
+message RecordUsageRequest {
+  string session_id = 1;
+  string uri = 2;
+  string usage_type = 3;
+  float contribution = 4;
+  string input = 5;
+  string output = 6;
+  bool success = 7;
+}

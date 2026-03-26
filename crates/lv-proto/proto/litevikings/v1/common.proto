@@ -1,0 +1,45 @@
+syntax = "proto3";
+package litevikings.v1;
+
+message Owner {
+  string account_id = 1;
+  string user_id = 2;
+  optional string agent_name = 3;
+}
+
+message Context {
+  string id = 1;
+  string uri = 2;
+  optional string parent_uri = 3;
+  optional int32 level = 4;
+  bool is_leaf = 5;
+  string context_type = 6;
+  string category = 7;
+  string abstract_text = 8;
+  string owner_account = 9;
+  string owner_user = 10;
+  optional string owner_agent = 11;
+  optional string session_id = 12;
+  int64 active_count = 13;
+  string meta = 14;
+  repeated float vector = 15;
+  string created_at = 16;
+  string updated_at = 17;
+}
+
+message Relation {
+  string id = 1;
+  repeated string uris = 2;
+  string reason = 3;
+  string created_at = 4;
+}
+
+message StatusResponse {
+  string status = 1;
+  optional ErrorInfo error = 2;
+}
+
+message ErrorInfo {
+  string code = 1;
+  string message = 2;
+}

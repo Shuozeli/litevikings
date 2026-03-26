@@ -1,0 +1,46 @@
+syntax = "proto3";
+package litevikings.v1;
+
+import "litevikings/v1/common.proto";
+
+service ResourcesService {
+  rpc AddResource (AddResourceRequest) returns (AddResourceResponse);
+  rpc AddSkill (AddSkillRequest) returns (StatusResponse);
+  rpc WaitProcessed (WaitProcessedRequest) returns (StatusResponse);
+}
+
+message AddResourceRequest {
+  optional string path = 1;
+  optional string temp_path = 2;
+  optional string to = 3;
+  optional string parent = 4;
+  string reason = 5;
+  string instruction = 6;
+  bool wait = 7;
+  optional float timeout = 8;
+  bool strict = 9;
+  optional string ignore_dirs = 10;
+  optional string include = 11;
+  optional string exclude = 12;
+  bool directly_upload_media = 13;
+  optional bool preserve_structure = 14;
+  float watch_interval = 15;
+}
+
+message AddResourceResponse {
+  string root_uri = 1;
+  int64 nodes_created = 2;
+  int64 processing_queued = 3;
+}
+
+message AddSkillRequest {
+  string uri = 1;
+  string name = 2;
+  string description = 3;
+  string content = 4;
+  repeated string tags = 5;
+}
+
+message WaitProcessedRequest {
+  optional float timeout = 1;
+}

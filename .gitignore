@@ -1,0 +1,7 @@
+/target
+.private/
+.claude/
+.fastembed_cache/
+*.duckdb
+*.duckdb.wal
+.env

@@ -1,0 +1,118 @@
+syntax = "proto3";
+package litevikings.v1;
+
+import "litevikings/v1/common.proto";
+
+service FilesystemService {
+  rpc Ls (LsRequest) returns (LsResponse);
+  rpc Tree (TreeRequest) returns (TreeResponse);
+  rpc Stat (StatRequest) returns (StatResponse);
+  rpc Mkdir (MkdirRequest) returns (StatusResponse);
+  rpc Rm (RmRequest) returns (StatusResponse);
+  rpc Mv (MvRequest) returns (StatusResponse);
+  rpc Read (ReadRequest) returns (ReadResponse);
+  rpc ReadAbstract (ReadAbstractRequest) returns (ReadAbstractResponse);
+  rpc ReadOverview (ReadOverviewRequest) returns (ReadOverviewResponse);
+  rpc Write (WriteRequest) returns (StatusResponse);
+}
+
+message DirEntry {
+  string uri = 1;
+  bool is_leaf = 2;
+  string abstract_text = 3;
+  string context_type = 4;
+  string updated_at = 5;
+}
+
+message TreeNode {
+  string uri = 1;
+  bool is_leaf = 2;
+  string abstract_text = 3;
+  string context_type = 4;
+  int32 depth = 5;
+  repeated TreeNode children = 6;
+}
+
+message LsRequest {
+  string uri = 1;
+  bool simple = 2;
+  bool recursive = 3;
+  string output = 4;
+  int32 abs_limit = 5;
+  bool show_all_hidden = 6;
+  int32 node_limit = 7;
+}
+
+message LsResponse {
+  repeated DirEntry entries = 1;
+}
+
+message TreeRequest {
+  string uri = 1;
+  string output = 2;
+  int32 abs_limit = 3;
+  bool show_all_hidden = 4;
+  int32 node_limit = 5;
+  int32 level_limit = 6;
+}
+
+message TreeResponse {
+  TreeNode root = 1;
+}
+
+message StatRequest {
+  string uri = 1;
+}
+
+message StatResponse {
+  string uri = 1;
+  bool is_leaf = 2;
+  string context_type = 3;
+  string abstract_text = 4;
+  int64 child_count = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message MkdirRequest {
+  string uri = 1;
+}
+
+message RmRequest {
+  string uri = 1;
+  bool recursive = 2;
+}
+
+message MvRequest {
+  string from = 1;
+  string to = 2;
+}
+
+message ReadRequest {
+  string uri = 1;
+}
+
+message ReadResponse {
+  string content = 1;
+}
+
+message ReadAbstractRequest {
+  string uri = 1;
+}
+
+message ReadAbstractResponse {
+  string abstract_text = 1;
+}
+
+message ReadOverviewRequest {
+  string uri = 1;
+}
+
+message ReadOverviewResponse {
+  string overview = 1;
+}
+
+message WriteRequest {
+  string uri = 1;
+  string content = 2;
+}

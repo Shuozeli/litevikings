@@ -1,0 +1,32 @@
+syntax = "proto3";
+package litevikings.v1;
+
+import "litevikings/v1/common.proto";
+
+service RelationsService {
+  rpc GetRelations (GetRelationsRequest) returns (GetRelationsResponse);
+  rpc Link (LinkRequest) returns (LinkResponse);
+  rpc Unlink (UnlinkRequest) returns (StatusResponse);
+}
+
+message GetRelationsRequest {
+  string uri = 1;
+}
+
+message GetRelationsResponse {
+  repeated Relation relations = 1;
+}
+
+message LinkRequest {
+  repeated string uris = 1;
+  string reason = 2;
+}
+
+message LinkResponse {
+  Relation relation = 1;
+}
+
+message UnlinkRequest {
+  string uri = 1;
+  string relation_id = 2;
+}

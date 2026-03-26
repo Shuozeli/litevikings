@@ -1,0 +1,12 @@
+[package]
+name = "lv-proto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lv-core = { path = "../lv-core" }
+tonic = { workspace = true }
+prost = { workspace = true }
+
+[build-dependencies]
+tonic-build = { workspace = true }
