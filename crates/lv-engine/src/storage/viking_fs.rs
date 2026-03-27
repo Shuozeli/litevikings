@@ -343,6 +343,48 @@ impl VikingFs {
         })
     }
 
+    /// Check if content has changed since last write by comparing hash.
+    /// Returns true if content is new or changed, false if unchanged.
+    pub fn content_changed(&self, uri: &VikingUri, content: &str) -> Result<bool, CoreError> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+        content.hash(&mut hasher);
+        let new_hash = format!("{:x}", hasher.finish());
+
+        self.db.with_conn(|conn| {
+            let existing: Result<String, _> = conn.query_row(
+                "SELECT content_hash FROM contexts WHERE uri = $1 AND level = 0",
+                params![uri.as_str()],
+                |row| row.get(0),
+            );
+            match existing {
+                Ok(old_hash) => Ok(old_hash != new_hash),
+                Err(_) => Ok(true), // no existing record = new content
+            }
+        })
+    }
+
+    /// Update the content hash for a URI.
+    pub fn set_content_hash(&self, uri: &VikingUri, content: &str) -> Result<(), CoreError> {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+        content.hash(&mut hasher);
+        let hash = format!("{:x}", hasher.finish());
+
+        self.db.with_conn(|conn| {
+            conn.execute(
+                "UPDATE contexts SET content_hash = $1 WHERE uri = $2 AND level = 0",
+                params![hash, uri.as_str()],
+            )
+            .map_err(|e| CoreError::Internal(format!("set content_hash: {e}")))?;
+            Ok(())
+        })
+    }
+
     /// Write raw L2 content.
     pub fn write_content_raw(&self, uri: &VikingUri, content: &str) -> Result<(), CoreError> {
         self.db.with_conn(|conn| {

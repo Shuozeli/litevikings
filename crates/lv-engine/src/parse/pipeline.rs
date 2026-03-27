@@ -163,6 +163,15 @@ impl ImportPipeline {
             .unwrap_or_else(|| format!("viking://resources/{}", slug_from_filename(&filename)));
         let root_uri = VikingUri::parse(&root_name)?;
 
+        // Skip if content hasn't changed (incremental re-index)
+        if !self.viking_fs.content_changed(&root_uri, &content)? {
+            return Ok(ImportResult {
+                root_uri: root_uri.as_str().to_string(),
+                nodes_created: 0,
+                processing_queued: 0,
+            });
+        }
+
         let nodes = parse_markdown(&content);
         self.viking_fs.mkdir(&root_uri, &ctx.owner)?;
 
@@ -203,6 +212,9 @@ impl ImportPipeline {
             })
             .await?;
         processing_queued += 1;
+
+        // Store content hash for incremental re-index
+        self.viking_fs.set_content_hash(&root_uri, &content)?;
 
         Ok(ImportResult {
             root_uri: root_uri.as_str().to_string(),

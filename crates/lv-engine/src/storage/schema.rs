@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS contexts (
     owner_agent     TEXT,
     session_id      TEXT,
     active_count    INTEGER DEFAULT 0,
+    content_hash    TEXT,
     meta            TEXT,
     vector          FLOAT[],
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
