@@ -12,7 +12,17 @@ impl StatusCmd {
         println!("contexts:  {}", status.context_count);
         println!("sessions:  {}", status.session_count);
         println!("vectors:   {}", status.vector_count);
-        println!("db size:   {} bytes", status.db_size_bytes);
+        if status.context_count > status.vector_count {
+            println!(
+                "pending:   {} ({}%)",
+                status.context_count - status.vector_count,
+                if status.context_count > 0 {
+                    (status.vector_count * 100) / status.context_count
+                } else {
+                    100
+                }
+            );
+        }
         Ok(())
     }
 }

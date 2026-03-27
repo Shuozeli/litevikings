@@ -2082,11 +2082,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "dirs",
  "lv-core",
  "lv-engine",
  "lv-proto",
  "lv-server",
  "prost",
+ "reqwest",
  "serde",
  "serde_json",
  "shellexpand",

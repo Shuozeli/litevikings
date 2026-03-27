@@ -101,9 +101,7 @@ fn check_ollama_model(model: &str) -> bool {
 }
 
 fn run_ollama_pull(model: &str) -> Result<()> {
-    let status = Command::new("ollama")
-        .args(["pull", model])
-        .status()?;
+    let status = Command::new("ollama").args(["pull", model]).status()?;
     if !status.success() {
         anyhow::bail!("Failed to pull model: {model}");
     }

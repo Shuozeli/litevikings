@@ -67,13 +67,19 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    // Use `info` level for serve (operators need visibility), `warn` for CLI commands
+    let default_level = match &cli.command {
+        Command::Serve(_) => "info",
+        _ => "warn",
+    };
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| default_level.into()),
         )
         .init();
-
-    let cli = Cli::parse();
 
     // Commands that don't need a gRPC connection
     match &cli.command {

@@ -85,8 +85,14 @@ impl ServeCmd {
         };
 
         let config = lv_server::ServerConfig {
-            grpc_addr: self.grpc_addr.clone().unwrap_or_else(|| "0.0.0.0:50051".to_string()),
-            http_addr: self.http_addr.clone().unwrap_or_else(|| "0.0.0.0:1933".to_string()),
+            grpc_addr: self
+                .grpc_addr
+                .clone()
+                .unwrap_or_else(|| "0.0.0.0:50051".to_string()),
+            http_addr: self
+                .http_addr
+                .clone()
+                .unwrap_or_else(|| "0.0.0.0:1933".to_string()),
             engine: lv_engine::EngineConfig {
                 storage: lv_engine::StorageConfig {
                     data_dir: data_path,

@@ -32,11 +32,14 @@ impl DebugService {
                 )
                 .map_err(|e| CoreError::Internal(format!("count vectors: {e}")))?;
 
+            let pending_embeddings = context_count - vector_count;
+
             Ok(SystemStatus {
                 context_count,
                 session_count,
                 vector_count,
-                db_size_bytes: 0, // TODO: file size
+                pending_embeddings,
+                db_size_bytes: 0,
             })
         })
     }
@@ -47,5 +50,6 @@ pub struct SystemStatus {
     pub context_count: i64,
     pub session_count: i64,
     pub vector_count: i64,
+    pub pending_embeddings: i64,
     pub db_size_bytes: i64,
 }
