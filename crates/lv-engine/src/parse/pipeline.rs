@@ -3,6 +3,7 @@ use std::sync::Arc;
 use lv_core::uri::VikingUri;
 use lv_core::CoreError;
 
+use super::code_parser::parse_code;
 use super::markdown::parse_markdown;
 use crate::service::context::RequestContext;
 use crate::storage::{Database, EmbeddingQueue, EmbeddingTask, VikingFs};
@@ -73,10 +74,7 @@ impl ImportPipeline {
         ctx: &RequestContext,
     ) -> Result<ImportResult, CoreError> {
         let dir = std::path::Path::new(&req.source);
-        let dir_name = dir
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("dir");
+        let dir_name = dir.file_name().and_then(|n| n.to_str()).unwrap_or("dir");
 
         let root_name = req
             .target_uri
@@ -98,10 +96,7 @@ impl ImportPipeline {
             }
 
             // Only import text-like files
-            let ext = path
-                .extension()
-                .and_then(|e| e.to_str())
-                .unwrap_or("");
+            let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
             if !is_importable_extension(ext) {
                 continue;
             }
@@ -136,7 +131,12 @@ impl ImportPipeline {
             }
         }
 
-        tracing::info!(files_imported, total_nodes, total_queued, "directory import complete");
+        tracing::info!(
+            files_imported,
+            total_nodes,
+            total_queued,
+            "directory import complete"
+        );
 
         if req.wait {
             self.embedding_queue.flush().await;
@@ -172,7 +172,8 @@ impl ImportPipeline {
             });
         }
 
-        let nodes = parse_markdown(&content);
+        // Try AST-based code parsing first, fall back to markdown/text
+        let nodes = parse_code(&filename, &content).unwrap_or_else(|| parse_markdown(&content));
         self.viking_fs.mkdir(&root_uri, &ctx.owner)?;
 
         let mut nodes_created = 0;
@@ -275,8 +276,7 @@ fn walk_recursive(
     let entries = std::fs::read_dir(dir)
         .map_err(|e| CoreError::Internal(format!("read dir {}: {e}", dir.display())))?;
     for entry in entries {
-        let entry =
-            entry.map_err(|e| CoreError::Internal(format!("dir entry: {e}")))?;
+        let entry = entry.map_err(|e| CoreError::Internal(format!("dir entry: {e}")))?;
         let path = entry.path();
         if path.is_dir() {
             // Skip hidden dirs and common non-code dirs

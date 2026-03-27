@@ -1,3 +1,4 @@
+pub mod code_parser;
 mod markdown;
 mod pipeline;
 

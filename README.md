@@ -86,7 +86,7 @@ Client (lv CLI)  --gRPC-->  Server (lv-server)  -->  Engine  -->  DuckDB
 | CLI with 11 commands | Done |
 | HNSW vector index (DuckDB vss) | Done |
 | HTTP gateway (Python SDK compat) | TODO |
-| Tree-sitter AST code parsing | TODO |
+| Tree-sitter AST code parsing (C, Python, JS/TS, Rust, Go) | Done |
 | Pack import/export | TODO |
 
 ## Evaluation vs OpenViking

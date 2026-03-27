@@ -34,6 +34,15 @@ duckdb = { version = "1", features = ["bundled"] }
 # Embeddings (local ONNX)
 fastembed = "4"
 
+# Code parsing (AST)
+tree-sitter = "0.24"
+tree-sitter-c = "0.23"
+tree-sitter-python = "0.23"
+tree-sitter-javascript = "0.23"
+tree-sitter-typescript = "0.23"
+tree-sitter-rust = "0.23"
+tree-sitter-go = "0.23"
+
 # CLI
 clap = { version = "4", features = ["derive", "env"] }
 ratatui = "0.29"
