@@ -39,6 +39,8 @@ enum OutputFormat {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Check dependencies and install Ollama models
+    Setup(commands::setup::SetupCmd),
     /// Start the server (gRPC + HTTP gateway)
     Serve(commands::serve::ServeCmd),
     /// Import a file, URL, or directory
@@ -73,9 +75,11 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    // `lv serve` runs the server in foreground -- no client needed
-    if let Command::Serve(cmd) = &cli.command {
-        return cmd.run(&cli.data_dir).await;
+    // Commands that don't need a gRPC connection
+    match &cli.command {
+        Command::Setup(cmd) => return cmd.run().await,
+        Command::Serve(cmd) => return cmd.run(&cli.data_dir).await,
+        _ => {}
     }
 
     // All other commands need a gRPC connection
@@ -92,6 +96,6 @@ async fn main() -> Result<()> {
         Command::Find(cmd) => cmd.run(&mut client, &cli.format).await,
         Command::Session(cmd) => cmd.run(&mut client).await,
         Command::Status(cmd) => cmd.run(&mut client).await,
-        Command::Serve(_) => unreachable!(),
+        Command::Setup(_) | Command::Serve(_) => unreachable!(),
     }
 }

@@ -11,16 +11,16 @@ pub struct ServeCmd {
     #[arg(long, default_value = "0.0.0.0:1933")]
     http_addr: String,
 
-    /// vLLM / OpenAI-compatible API base URL
+    /// LLM API base URL (Ollama, vLLM, or any OpenAI-compatible endpoint)
     #[arg(
         long,
         env = "LV_LLM_BASE_URL",
-        default_value = "http://localhost:8000/v1"
+        default_value = "http://localhost:11434/v1"
     )]
     llm_base_url: String,
 
     /// Chat model name
-    #[arg(long, env = "LV_CHAT_MODEL", default_value = "gemma-3-4b-it")]
+    #[arg(long, env = "LV_CHAT_MODEL", default_value = "qwen2.5:3b")]
     chat_model: String,
 
     /// Embedding model name

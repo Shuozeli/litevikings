@@ -7,5 +7,6 @@ pub mod read_abstract;
 pub mod rm;
 pub mod serve;
 pub mod session;
+pub mod setup;
 pub mod status;
 pub mod write;
