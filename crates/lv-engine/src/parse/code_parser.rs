@@ -94,11 +94,37 @@ pub fn parse_code(filename: &str, source: &str) -> Option<Vec<ContentNode>> {
     // Walk top-level children looking for function/class definitions
     extract_definitions(root, source, fn_types, &mut nodes, &mut seen_ranges, 0);
 
-    // If we found very few definitions, the file might be mostly top-level code
-    // (e.g., a Python script or C file with lots of macros). Add uncovered regions.
     if nodes.is_empty() {
         return None; // Fall back to text parser
     }
+
+    // Add a file-level summary node as the FIRST node.
+    // This captures the overall theme of the file for high-level queries.
+    // Contains: filename + list of function names + first comment block.
+    let fn_names: Vec<&str> = nodes.iter().map(|n| n.slug.as_str()).collect();
+    let file_summary = format!(
+        "File: {filename}\nContains {} definitions: {}",
+        fn_names.len(),
+        fn_names.join(", ")
+    );
+    // Prepend leading comment block if any (usually the file's copyright/description)
+    let leading_comment = get_leading_comment(
+        source,
+        source.find(|c: char| !c.is_whitespace()).unwrap_or(0) + 1,
+    );
+    let summary_text = if leading_comment.is_empty() {
+        file_summary
+    } else {
+        format!("{leading_comment}\n\n{file_summary}")
+    };
+    nodes.insert(
+        0,
+        ContentNode {
+            slug: "file_overview".to_string(),
+            text: summary_text,
+            children: vec![],
+        },
+    );
 
     // Add any significant uncovered regions as "module-level" nodes
     add_uncovered_regions(source, &seen_ranges, &mut nodes);
