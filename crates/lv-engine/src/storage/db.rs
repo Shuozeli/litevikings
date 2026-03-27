@@ -59,45 +59,6 @@ impl Database {
             .map_err(|e| CoreError::Internal(format!("failed to clone connection: {e}")))
     }
 
-    /// Create HNSW vector index for fast similarity search.
-    /// Call after embedding dimension is known (e.g., at Engine startup).
-    /// Requires the DuckDB `vss` extension.
-    pub fn create_hnsw_index(&self, dimension: usize) -> Result<(), CoreError> {
-        self.with_conn(|conn| {
-            // Load vss extension
-            conn.execute_batch("INSTALL vss; LOAD vss;")
-                .map_err(|e| CoreError::Internal(format!("load vss extension: {e}")))?;
-
-            // Alter column to fixed-size array if needed, then create index.
-            // DuckDB HNSW requires FLOAT[N]. We ALTER the column type.
-            let alter_sql = format!(
-                "ALTER TABLE contexts ALTER COLUMN vector SET DATA TYPE FLOAT[{dimension}]"
-            );
-            // This may fail if vectors of different dimensions exist -- that's OK, skip.
-            match conn.execute_batch(&alter_sql) {
-                Ok(()) => {
-                    tracing::info!(dimension = dimension, "altered vector column to FLOAT[{dimension}]");
-                }
-                Err(e) => {
-                    tracing::warn!(error = %e, "could not alter vector column (may already be correct type)");
-                }
-            }
-
-            // Create the index (idempotent via IF NOT EXISTS)
-            let idx_sql = "CREATE INDEX IF NOT EXISTS ctx_vector_hnsw ON contexts USING HNSW (vector) WITH (metric = 'cosine')".to_string();
-            match conn.execute_batch(&idx_sql) {
-                Ok(()) => {
-                    tracing::info!("HNSW index created on contexts.vector");
-                }
-                Err(e) => {
-                    tracing::warn!(error = %e, "could not create HNSW index (will use brute-force scan)");
-                }
-            }
-
-            Ok(())
-        })
-    }
-
     /// Execute a function with access to the connection.
     /// This is the primary way to interact with the database.
     pub fn with_conn<F, T>(&self, f: F) -> Result<T, CoreError>
@@ -246,14 +207,4 @@ mod tests {
         assert_eq!(count, 1);
     }
 
-    #[test]
-    fn hnsw_index_creation() {
-        let db = Database::open_in_memory().unwrap();
-        // create_hnsw_index is best-effort -- should not panic even if vss is unavailable
-        let result = db.create_hnsw_index(3);
-        assert!(
-            result.is_ok(),
-            "create_hnsw_index should not fail: {result:?}"
-        );
-    }
 }

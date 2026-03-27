@@ -53,8 +53,9 @@ impl Engine {
         let embedder: Arc<dyn Embedder> = Arc::from(create_embedder(&config.llm.embedder).await?);
         let chat: Arc<dyn ChatModel> = Arc::from(create_chat(&config.llm.chat));
 
-        // Create HNSW index for fast vector search (best-effort, falls back to brute-force)
-        db.create_hnsw_index(embedder.dimension())?;
+        // NOTE: HNSW index (vss extension) removed -- it downloads 50MB on first run
+        // and blocks startup. Brute-force list_cosine_similarity() is fast enough
+        // for <100K vectors (~200ms). Re-add when scale demands it.
 
         let worker_conn = db.clone_connection()?;
         let (embedding_queue, worker_handle) =
