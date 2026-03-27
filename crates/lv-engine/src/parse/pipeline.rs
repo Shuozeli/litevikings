@@ -3,6 +3,9 @@ use std::sync::Arc;
 use lv_core::uri::VikingUri;
 use lv_core::CoreError;
 
+// AST parsing available but not used by default -- text chunking wins on eval.
+// See code_parser.rs and docs/bugs/002-known-issues.md for context.
+#[allow(unused_imports)]
 use super::code_parser::parse_code;
 use super::markdown::parse_markdown;
 use crate::service::context::RequestContext;
@@ -172,8 +175,11 @@ impl ImportPipeline {
             });
         }
 
-        // Try AST-based code parsing first, fall back to markdown/text
-        let nodes = parse_code(&filename, &content).unwrap_or_else(|| parse_markdown(&content));
+        // Use text-based chunking for all files. AST parsing (code_parser.rs) is available
+        // but evaluation showed text chunking produces better results for conceptual queries
+        // like "how does X work". AST is better for "find function X" but that's not the
+        // common use case. Keep AST as opt-in for future use.
+        let nodes = parse_markdown(&content);
         self.viking_fs.mkdir(&root_uri, &ctx.owner)?;
 
         let mut nodes_created = 0;
